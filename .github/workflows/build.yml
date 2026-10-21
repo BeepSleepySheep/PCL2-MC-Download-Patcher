@@ -1,0 +1,47 @@
+name: build
+
+on:
+  push:
+    branches: [main]
+    tags: ["v*"]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Publish single-file exe
+        run: >
+          dotnet publish -c Release -r win-x64 --self-contained true
+          -p:PublishSingleFile=true
+          -p:IncludeNativeLibrariesForSelfExtract=true
+          -p:EnableCompressionInSingleFile=true
+          -p:DebugType=None
+          -o dist
+
+      - name: Package
+        run: >
+          Compress-Archive -Path dist\PCL2-MC-Download-Patcher.exe
+          -DestinationPath PCL2-MC-Download-Patcher-win-x64.zip -Force
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: PCL2-MC-Download-Patcher-win-x64
+          path: PCL2-MC-Download-Patcher-win-x64.zip
+
+      - name: Attach to release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: PCL2-MC-Download-Patcher-win-x64.zip

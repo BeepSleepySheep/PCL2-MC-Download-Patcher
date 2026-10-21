@@ -1,0 +1,19 @@
+# 构建输出
+bin/
+obj/
+dist/
+release/
+
+# 本地产物
+output/
+*McDownloadRestored.exe
+*.pdb
+*.zip
+
+# IDE / 系统
+.vs/
+.idea/
+*.user
+*.suo
+Thumbs.db
+.DS_Store
